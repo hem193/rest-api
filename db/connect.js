@@ -1,8 +1,11 @@
 const mongoose = require("mongoose");
 
 const connectDB = (uri) => {
-  return mongoose.connect(uri, () => {
-    console.log("connected db");
+  mongoose.set("strictQuery", false);
+  //   console.log("connected to db");
+  return mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
   });
 };
 
