@@ -1,9 +1,46 @@
+const Product = require("../models/product");
+
 const getallProducts = async (req, res) => {
-  res.status(200).json({ msg: "you will getAllProducts" });
+  const { company, name, featured, sort, select } = req.query;
+  const queryObject = {};
+
+  if (company) {
+    queryObject.company = company;
+  }
+  if (featured) {
+    queryObject.featured = featured;
+  }
+  if (name) {
+    queryObject.name = { $regex: name, $options: "i" };
+  }
+
+  let apiData = Product.find(queryObject);
+
+  if (sort) {
+    let sortFix = sort.split(",").join(" ");
+    apiData = apiData.sort(sortFix);
+  }
+
+  if (select) {
+    let selectFix = select.split(",").join(" ");
+    apiData = apiData.select(selectFix);
+  }
+
+  let page = Number(req.query.page) || 1;
+  let limit = Number(req.query.limit) || 3;
+  let skip = (page - 1) * limit;
+
+  apiData = apiData.skip(skip).limit(limit);
+
+  console.log(queryObject);
+
+  const myData = await apiData;
+  res.status(200).json({ myData, nbHits: myData.length });
 };
 
 const getallProductsTesting = async (req, res) => {
-  res.status(200).json({ msg: "you wil getallProductsTesting" });
+  const myData = await Product.find(req.query).skip(2);
+  res.status(200).json({ myData, nbHits: myData.length });
 };
 
 module.exports = { getallProducts, getallProductsTesting };
